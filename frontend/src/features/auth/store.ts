@@ -1,5 +1,6 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { globalStore } from "../store";
+import { redirect } from "react-router";
 
 type User = {
   name: string;
@@ -22,8 +23,8 @@ const userRepository = {
   clear: () => globalStore.set(userAtom, null),
   signOut: () => {
     userRepository.clear();
-    window.location.href = "/sing-in"
-  }
+    redirect("/sign-in");
+  },
 };
 
 export type { User };

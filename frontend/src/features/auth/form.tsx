@@ -12,11 +12,7 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-export type Authentication = {
-  email: string;
-  password: string;
-};
+import type { Authentication } from "./repository";
 
 type AuthenticationFormProps = {
   variant: "signIn" | "signUp";

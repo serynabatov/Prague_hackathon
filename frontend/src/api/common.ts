@@ -1,8 +1,5 @@
 import { minutes } from "@/lib/time";
-import {
-    useQuery,
-    type UseQueryOptions
-} from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 
 function newQueryFactory(keyword: string) {
   const queryConfig = (config?: UseQueryOptions): UseQueryOptions => ({
@@ -12,21 +9,30 @@ function newQueryFactory(keyword: string) {
     staleTime: minutes(5),
   });
 
-  function createQuery(asyncCallback: <T>(...params: unknown[]) => Promise<T>) {
+  function createQuery<TArgs extends unknown[], TResult>(
+    asyncCallback: (...params: TArgs) => Promise<TResult>
+  ) {
     return {
-      useQuery: (...args: unknown[]) =>
+      useQuery: (...args: TArgs) =>
         useQuery({
           ...queryConfig({ queryKey: [keyword, JSON.stringify({ ...args })] }),
-          queryFn: () => asyncCallback(args),
+          queryFn: () => asyncCallback(...args),
         }),
-      fetch: (...args: unknown[]) => asyncCallback(args),
+      fetch: (...args: TArgs) => asyncCallback(...args),
       config: queryConfig(),
     };
   }
-  
+
+  function createAction<TArgs extends unknown[], TResult>(
+    asyncCallback: (...args: TArgs) => Promise<TResult>
+  ) {
+    return (...args: TArgs) => asyncCallback(...args);
+  }
+
   return {
     createQuery,
+    createAction,
   };
 }
 
-export { newQueryFactory }
+export { newQueryFactory };
