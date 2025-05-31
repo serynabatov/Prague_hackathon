@@ -1,11 +1,11 @@
+import google from "@/assets/google_logo.webp";
 import { AsyncButton } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import AuthenticationForm, { type Authentication } from "@/features/auth/form";
-import google from "@/assets/google_logo.webp";
-import { asyncTodo } from "@/lib/async";
 import { userAtom } from "@/features/auth/store";
+import { asyncTodo } from "@/lib/async";
 import { useAtom } from "jotai/react";
 import { useNavigate } from "react-router";
 

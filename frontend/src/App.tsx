@@ -1,10 +1,14 @@
-import { RouterProvider } from 'react-router'
+import { RouterProvider } from "react-router";
 import { routes } from "./routes";
+import { Provider } from "jotai/react";
+import { globalStore } from "./features/store";
 
 function App() {
   return (
-    <RouterProvider router={routes} />
-  )
+    <Provider store={globalStore}>
+      <RouterProvider router={routes} />
+    </Provider>
+  );
 }
 
-export default App
+export default App;

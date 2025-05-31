@@ -1,4 +1,6 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
+import { globalStore } from "../store";
+import { redirect } from "react-router";
 
 type User = {
   name: string;
@@ -8,8 +10,22 @@ type User = {
 
 const defualtUserValue: User | null = null;
 
-const storage = createJSONStorage<User| null>(() => localStorage);
-const userAtom = atomWithStorage<User | null>("user", defualtUserValue, storage);
+const userStorage = createJSONStorage<User | null>(() => localStorage);
+const userAtom = atomWithStorage<User | null>(
+  "user",
+  defualtUserValue,
+  userStorage
+);
+
+const userRepository = {
+  get: () => globalStore.get(userAtom),
+  set: (newUser: User) => globalStore.set(userAtom, newUser),
+  clear: () => globalStore.set(userAtom, null),
+  signOut: () => {
+    userRepository.clear();
+    redirect("/sign-in");
+  },
+};
 
 export type { User };
-export { userAtom };
+export { userAtom, userRepository };
