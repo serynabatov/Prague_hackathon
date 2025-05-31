@@ -10,7 +10,7 @@ func SetUpTotp(userID uint, userEmail string) (string, error) {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "Prague",
 		AccountName: userEmail,
-		Period:      90,
+		Period:      1800,
 	})
 	if err != nil {
 		return "", err

@@ -93,7 +93,6 @@ func GenerateOtp(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate a secure password"})
 		return
 	}
 
