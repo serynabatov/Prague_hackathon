@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"backend/models"
+	"backend/utils/password"
 	"backend/utils/token"
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -20,6 +22,12 @@ type RegisterInput struct {
 type LoginInput struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+type GoogleUser struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
 }
 
 func CurrentUser(c *gin.Context) {
@@ -118,14 +126,14 @@ func GoogleCallback(c *gin.Context) {
 	}
 
 	code := c.Query("code")
-	token, err := googleOauthConfig.Exchange(context.Background(), code)
+	tokenGoogle, err := googleOauthConfig.Exchange(context.Background(), code)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token exchange failed"})
 		return
 	}
 
-	client := googleOauthConfig.Client(context.Background(), token)
+	client := googleOauthConfig.Client(context.Background(), tokenGoogle)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user info"})
@@ -133,6 +141,33 @@ func GoogleCallback(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// Parse user info from JSON (omitted here for brevity)
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful!"})
+	var userInfo GoogleUser
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode user info"})
+		return
+	}
+
+	user := models.User{}
+
+	user, err = models.GetByEmail(userInfo.Email)
+
+	if err != nil {
+		password, err := password.GenerateRandomPassword(24)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate a secure password"})
+			return
+		}
+		user.Email = userInfo.Email
+		user.Password = string(password)
+		user.SaveUser()
+	}
+
+	token, err := token.GenerateToken(user.ID)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate a token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }

@@ -27,7 +27,20 @@ func GetUserByID(uid uint) (User, error) {
 	u.PrepareGive()
 
 	return u, nil
+}
 
+func GetByEmail(email string) (User, error) {
+	var u User
+
+	err := DB.Model(User{}).Where("email = ?", email).Take(&u).Error
+
+	if err != nil {
+		return u, errors.New("User not found!")
+	}
+
+	u.PrepareGive()
+
+	return u, nil
 }
 
 func (u *User) PrepareGive() {
