@@ -44,7 +44,6 @@ func GetPrivateKey(c *gin.Context) {
 
 	keyBytes, err := cloud.GetUserPrivateKey(ctx, client, projectID, userID)
 	if err == nil {
-		log.Println(err)
 		c.JSON(http.StatusOK, gin.H{
 			"user":      userID,
 			"private":   string(keyBytes),
