@@ -1,0 +1,10 @@
+services:
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: db
+    ports:
+      - "3307:3306"
