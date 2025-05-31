@@ -44,7 +44,7 @@ func LoginCheck(username string, password string) (string, error) {
 
 	u := User{}
 
-	err = DB.Model(User{}).Where("username = ?", username).Take(&u).Error
+	err = DB.Model(User{}).Where("email = ?", username).Take(&u).Error
 
 	if err != nil {
 		return "", err
