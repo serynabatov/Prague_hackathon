@@ -36,9 +36,9 @@ function AuthLayout() {
           <Link to="/" className="max-w-fit">
             <Turtle size={32} />
           </Link>
-          <div className="m-auto w-full px-4 max-w-96">
+         
             <Outlet />
-          </div>
+          
           {discriminateRedirectignMap && (
             <Text type="p" className="text-center">
               {discriminateRedirectignMap?.description}{" "}
