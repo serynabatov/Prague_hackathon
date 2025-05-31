@@ -17,6 +17,8 @@ func main() {
 
 	public.POST("/register", controllers.Register)
 	public.POST("/login", controllers.Login)
+	public.GET("/google/login", controllers.GoogleLogin)
+	public.GET("/google/callback", controllers.GoogleCallback)
 
 	user := r.Group("/api/user")
 	user.Use(middlewares.JwtAuthMiddleware())
