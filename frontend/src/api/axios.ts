@@ -1,6 +1,7 @@
+import { userRepository } from "@/features/auth/store";
 import Axios from "axios";
 
-let baseURL = 'http://localhost:8080';
+const baseURL = process.env.BACK_END_ULR;
 
 const axiosConfig = {
   baseURL: baseURL,
@@ -13,38 +14,28 @@ const axiosConfig = {
 
 const axiosClient = Axios.create(axiosConfig);
 
-function getToken(): string | null {
-  return localStorage.getItem("token");
-}
-
 axiosClient.interceptors.request.use(
-  (config: any) => {
-    const token = getToken();
+  (config) => {
+    const token = userRepository.get()?.sessionToken;
     if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`
-      };
+      config.headers.Authorization = token;
     }
 
     return config;
   },
-  (error: any) => {
+  (error) => {
     return Promise.reject(error);
   }
 );
 
-axiosClient.interceptors.request.use(
-  (response: any) => {
-    return response;
-  },
-  (error: any) => {
-    if ((error.response?.status == 401) || (error.response?.status == 403)) {
-      localStorage.removeItem("token");
+axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401 || error?.response?.status === 403) {
+      userRepository.signOut();
     }
-
     return Promise.reject(error);
   }
-)
+);
 
 export { axiosClient };
