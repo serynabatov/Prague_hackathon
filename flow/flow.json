@@ -1,0 +1,84 @@
+{
+	"contracts": {
+		"Counter": {
+			"source": "cadence/contracts/Counter.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		},
+		"FooBar": "cadence/contracts/FooBar.cdc",
+		"MetadataViews": {
+			"source": "",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"NonFungibleToken": {
+			"source": "",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		},
+		"ViewResolver": {
+			"source": "",
+			"aliases": {
+				"emulator": "f8d6e0586b0a20c7",
+				"testnet": "631e88ae7f1d7c20"
+			}
+		}
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testing": "127.0.0.1:3569",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": {
+				"type": "file",
+				"location": "emulator-account.pkey"
+			}
+		},
+		"gianni": {
+			"address": "179b6b1cb6755e31",
+			"key": "9e8caad2509b71b14859de7869b6e3350617fbe4ca70ff613128ec4a3aa5536d"
+		},
+		"luca": {
+			"address": "179b6b1cb6755e31",
+			"key": "2509bc1f9f7f51e428c1e68c091649ada0d1cc97d4e261c4fdcac4478a295112"
+		},
+		"padre": {
+			"address": "179b6b1cb6755e31",
+			"key": "6accb63d1276977a3cc06acbd8a0cffb9fcefdba986dbc73dee90ac5ecb7b1d8"
+		},
+		"padrepio": {
+			"address": "a58d65584d448d94",
+			"key": {
+				"type": "file",
+				"location": "padrepio.pkey"
+			}
+		},
+		"pago": {
+			"address": "f3fcd2c1a78f5eee",
+			"key": "4440165364ced4e29b3253ab11e1945204fc45f24953fc392eaa23f845def47f"
+		},
+		"tuamadre": {
+			"address": "bd662bbefe84ab46",
+			"key": {
+				"type": "file",
+				"location": "tuamadre.pkey"
+			}
+		}
+	},
+	"deployments": {
+		"testnet": {
+			"tuamadre": [
+				"FooBar"
+			]
+		}
+	}
+}
