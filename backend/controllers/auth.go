@@ -163,7 +163,7 @@ func GoogleCallback(c *gin.Context) {
 		return
 	}
 
-	code := c.Query("code")
+	code := c.Query("otp")
 	tokenGoogle, err := googleOauthConfig.Exchange(context.Background(), code)
 
 	if err != nil {
