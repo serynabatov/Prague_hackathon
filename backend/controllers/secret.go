@@ -37,7 +37,7 @@ func GetPrivateKey(c *gin.Context) {
 	}
 
 	// 1) Validate TOTP code
-	code := c.Query("code")
+	code := c.Query("otp")
 	if !cloud.ValidateTOTP(userID, code) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid 2FA code"})
 		return
