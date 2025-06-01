@@ -83,7 +83,7 @@ func Register(c *gin.Context) {
 	fmt.Println("Scan this QR/URL in Google Authenticator or Authy:", key)
 	fmt.Println("Then use a URL like: http://localhost:8080/get-private-key?user=user123&code=XXXXXX")
 
-	c.JSON(http.StatusOK, gin.H{"otp": key})
+	c.JSON(http.StatusOK, gin.H{"otp": key, "email": u.Email})
 }
 
 func GenerateOtp(c *gin.Context) {
@@ -210,7 +210,7 @@ func GoogleCallback(c *gin.Context) {
 		fmt.Println("Scan this QR/URL in Google Authenticator or Authy:", key)
 		fmt.Println("Then use a URL like: http://localhost:8080/get-private-key?user=user123&code=XXXXXX")
 
-		c.JSON(http.StatusOK, gin.H{"otp": key})
+		c.JSON(http.StatusOK, gin.H{"otp": key, "email": user.Email})
 		return
 	}
 
