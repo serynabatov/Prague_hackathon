@@ -35,7 +35,7 @@ const routes = createBrowserRouter([
     ],
   },
   {
-    // Component: RootLayout,
+    Component: RootLayout,
     children: [
       {
         // add evant layout
