@@ -6,6 +6,10 @@ type SignInResponse = {
   token: string;
 };
 
+type SignUpResponse = {
+  otp: string;
+};
+
 type GoogleSignInResponse =
   | {
       otp: string;
@@ -25,7 +29,7 @@ const authConstroller = {
   login: (params: Authentication) =>
     axiosClient.post<SignInResponse>("/api/login", params),
   register: (params: Authentication) =>
-    axiosClient.post<SignInResponse>("/api/register", params),
+    axiosClient.post<SignUpResponse>("/api/register", params),
   googleSignIn: () => axiosClient.get<GoogleSignInResponse>("api/google/login"),
 };
 
