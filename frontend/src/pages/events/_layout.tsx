@@ -13,7 +13,7 @@ function EventLayout() {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/sign">Profile</Link>
+                <Link to="/profile">Profile</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
