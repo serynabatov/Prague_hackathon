@@ -22,10 +22,7 @@ function UserSign() {
   const navigate = useNavigate();
 
   async function onGoogleLogin() {
-    const [response] = await asyncTodo({
-      otp: "otpauth://totp/Prague:sergio.nabatini@prague.cz?algorithm=SHA1&digits=6&issuer=Prague&period=1800&secret=YBGSQGN2CYVRZQTVDTHDHJHPFV6JFWT4",
-      privateKey: crypto.randomUUID(),
-    } as GoogleSignInResponse);
+    const response = await authRepository.googleSignIn();
 
     if (response.token) {
       setUser({ sessionToken: response.token });
@@ -44,13 +41,32 @@ function UserSign() {
   }
 
   async function onSignIn(data: Authentication) {
-    const userResponse = await authRepository.login(data);
+    try {
+      const userResponse = await authRepository.login(data);
 
     setUser({
       name: "user1",
       sessionToken: userResponse.token,
     });
     navigate("/events");
+    } catch(e) {
+      toast.error("Something went wrong, re-try to in few minutes");
+    }
+  }
+
+  async function onSignUp(data: Authentication) {
+    try {
+      const userResponse = await authRepository.register(data);
+
+    setUser({
+      name: "user1",
+      sessionToken: userResponse.token,
+    });
+    navigate("/events");
+    toast.success("successfully sign up");
+    } catch(e) {
+      toast.error("Something went wrong, re-try to in few minutes");
+    }
   }
 
   return (
@@ -85,9 +101,7 @@ function UserSign() {
           <AuthenticationForm
             variant="signUp"
             className="mb-6"
-            onSubmit={(data) => {
-              console.log(data);
-            }}
+            onSubmit={onSignUp}
           />
           <div className="flex items-center gap-2 mb-4">
             <Separator className="flex-1" />
