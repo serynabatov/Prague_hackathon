@@ -1,4 +1,5 @@
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from "@/components/ui/navigation-menu";
+import { userRepository } from "@/features/auth/store";
 import { Turtle } from "lucide-react";
 import { Link, Outlet } from "react-router";
 
@@ -13,14 +14,14 @@ function EventLayout() {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/profile">Profile</Link>
+                <button onClick={() => userRepository.signOut()}>Sign out</button>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
       </div>
 
-      <section className="h-screen pt-24">
+      <section className="min-h-screen pt-24 max-w-7xl mx-auto">
         <Outlet />
       </section>
     </>

@@ -22,6 +22,7 @@ function UserSign() {
   const navigate = useNavigate();
 
   async function onGoogleLogin() {
+   try {
     const response = await authRepository.googleSignIn();
 
     if (response.token) {
@@ -39,8 +40,10 @@ function UserSign() {
 
       return;
     }
-
+   } catch (e) {
     toast.error("Something went wrong, re-try to in few minutes");
+   }
+
   }
 
   async function onSignIn(data: Authentication) {
@@ -82,8 +85,8 @@ function UserSign() {
       <Text type="h2">Welcome</Text>
       <Tabs defaultValue="signIn" onValueChange={setTabs} value={tabs}>
         <TabsList className="w-full mb-2">
-          <TabsTrigger value="signIn">Sing in</TabsTrigger>
-          <TabsTrigger value="signUp">Sing up</TabsTrigger>
+          <TabsTrigger value="signIn">Sign in</TabsTrigger>
+          <TabsTrigger value="signUp">Sign up</TabsTrigger>
         </TabsList>
         <TabsContent value="signIn">
           <AuthenticationForm

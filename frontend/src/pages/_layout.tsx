@@ -6,7 +6,7 @@ function RootLayout() {
   const navigate = useNavigate();
   const user = localStorage.getItem("user");
   useEffect(() => {
-    if (user && (JSON.parse(user) as User).sessionToken) {
+    if (user && (JSON.parse(user) as User)?.sessionToken) {
       navigate("/events");
     } else {
       navigate("/");
