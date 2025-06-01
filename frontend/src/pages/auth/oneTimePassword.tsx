@@ -113,7 +113,7 @@ function OneTimePassword() {
             className="w-full mt-6"
             onClickAsync={() =>
               onSubmitOtp({
-                email: "sergio.nabatini@gmail.com",
+                email: otp.email,
                 otp: Number(otpInput),
               })
             }
