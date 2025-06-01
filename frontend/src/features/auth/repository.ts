@@ -10,14 +10,12 @@ type GoogleSignInResponse =
   | {
       otp: string;
       token?: undefined;
-      privateKey: string;
     }
   | {
       otp?: undefined;
       token: string;
-      privateKey?: undefined;
     };
-  
+
 type Authentication = {
   email: string;
   password: string;
@@ -46,5 +44,5 @@ const authRepository = {
   }),
 };
 
-export type { Authentication };
+export type { Authentication, GoogleSignInResponse };
 export { authRepository, authConstroller };
