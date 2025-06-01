@@ -57,14 +57,15 @@ function UserSign() {
   async function onSignUp(data: Authentication) {
     try {
       const userResponse = await authRepository.register(data);
-
-      setUser({
-        name: "user1",
-        sessionToken: userResponse.token,
-      });
-
       toast.success("successfully sign up");
       setTabs("signIn");
+
+      if (userResponse.otp) {
+        setOtpData(userResponse.otp);
+        navigate("/sign/otp-session");
+
+        return;
+      }
     } catch (e) {
       toast.error("Something went wrong, re-try to in few minutes");
     }
