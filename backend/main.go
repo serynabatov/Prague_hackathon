@@ -5,6 +5,8 @@ import (
 	"backend/middlewares"
 	"backend/models"
 
+	"github.com/gin-contrib/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +14,8 @@ func main() {
 	models.ConnectDataBase()
 
 	r := gin.Default()
+	// This allows any origin, any method, any header.
+	r.Use(cors.Default())
 
 	public := r.Group("/api")
 

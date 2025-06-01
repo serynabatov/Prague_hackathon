@@ -5,6 +5,7 @@ go 1.24.2
 require (
 	cloud.google.com/go/secretmanager v1.14.7
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.5.1
