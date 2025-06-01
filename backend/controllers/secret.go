@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"backend/cloud"
-	"backend/utils/token"
+	"backend/custom_flow"
+	"backend/models"
 	"crypto/rand"
 	"encoding/base64"
 	"log"
@@ -19,8 +20,16 @@ import (
 func GetPrivateKey(c *gin.Context) {
 	ctx := c.Request.Context()
 	projectID := os.Getenv("GOOGLE_PROJECT_ID")
+	email := c.Query("email")
 
-	userID, err := token.ExtractTokenID(c)
+	u, err := models.GetByEmail(email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID := u.ID
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -42,11 +51,11 @@ func GetPrivateKey(c *gin.Context) {
 	}
 	defer client.Close()
 
-	keyBytes, err := cloud.GetUserPrivateKey(ctx, client, projectID, userID)
+	_, err = cloud.GetUserPrivateKey(ctx, client, projectID, userID)
 	if err == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"user":      userID,
-			"private":   string(keyBytes),
+			"address":   "0x00023",
 			"timestamp": time.Now().Format(time.RFC3339),
 		})
 		return
@@ -61,23 +70,24 @@ func GetPrivateKey(c *gin.Context) {
 			return
 		}
 
-		randomKey, genErr := generateRandomKey(32)
+		flowAccount, genErr := custom_flow.CreateAccount()
+
 		if genErr != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate private key"})
 			return
 		}
 
-		if err := cloud.AddUserSecretVersion(ctx, client, projectID, userID, []byte(randomKey)); err != nil {
+		if err := cloud.AddUserSecretVersion(ctx, client, projectID, userID, []byte(flowAccount.PrivateKey)); err != nil {
 			log.Println(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to store private key"})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
-			"user":        userID,
-			"private_key": randomKey,
-			"timestamp":   time.Now().Format(time.RFC3339),
+			"user":      userID,
+			"address":   flowAccount.Address,
+			"timestamp": time.Now().Format(time.RFC3339),
 		})
 		return
 

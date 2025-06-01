@@ -26,8 +26,19 @@ func main() {
 	user.GET("", controllers.CurrentUser)
 
 	keyManagement := r.Group("/api/key-management")
-	keyManagement.Use(middlewares.JwtAuthMiddleware())
 	keyManagement.GET("/get-private-key", controllers.GetPrivateKey)
 
+	nfts := r.Group("/api/nfts")
+	nfts.Use(middlewares.JwtAuthMiddleware())
+	nfts.GET("", controllers.GetNfts)
+	nfts.POST("/mint", controllers.MintNFT)
+
+	collections := r.Group("/api/collections")
+	collections.Use(middlewares.JwtAuthMiddleware())
+	collections.POST("/setup", controllers.Setup)
+
+	orgnizator_or_attendee := r.Group("/api/org_or_attendee")
+	orgnizator_or_attendee.Use(middlewares.JwtAuthMiddleware())
+	orgnizator_or_attendee.GET("", controllers.GetTheInfo)
 	r.Run(":8080")
 }

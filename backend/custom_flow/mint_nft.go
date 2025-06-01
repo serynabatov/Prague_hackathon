@@ -1,4 +1,4 @@
-package main
+package custom_flow
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/onflow/flow-go-sdk/access/grpc"
 	"github.com/onflow/flow-go-sdk/crypto"
 )
-
 
 const mintNFTScript = `
 import NonFungibleToken from 0x631e88ae7f1d7c20
@@ -44,10 +43,16 @@ transaction(
 }
 `
 
+type NFTData struct {
+	NftName        string
+	NftDescription string
+	NftURL         string
+	NftRole        bool
+}
 
 // MintNFT mints an NFT and sends it to the recipient.
 // The signerAddress is the account that owns the NFTMinter resource.
-func MintNFT(
+func mintNFT(
 	ctx context.Context,
 	client *grpc.Client,
 	signerAddress flow.Address, // Address of the account that will mint (minter owner)
@@ -108,7 +113,7 @@ func MintNFT(
 	if err := tx.AddArgument(cadenceURL); err != nil {
 		return nil, fmt.Errorf("failed to add 'url' argument: %w", err)
 	}
-    // 5. role: Bool
+	// 5. role: Bool
 	cadenceRole := cadence.NewBool(nftRole)
 	if err := tx.AddArgument(cadenceRole); err != nil {
 		return nil, fmt.Errorf("failed to add 'role' argument: %w", err)
@@ -126,11 +131,11 @@ func MintNFT(
 		return nil, fmt.Errorf("failed to send transaction: %w", err)
 	}
 	log.Printf("Mint NFT Transaction sent (ID: %s) by %s for recipient %s", tx.ID(), signerAddress.String(), recipientAddress.String())
-	return WaitForTransactionSeal(ctx, client, tx.ID())
+	return waitForTransactionSeal(ctx, client, tx.ID())
 }
 
 // WaitForTransactionSeal waits for a transaction to be sealed.
-func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.Identifier) (*flow.TransactionResult, error) {
+func waitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.Identifier) (*flow.TransactionResult, error) {
 	log.Printf("Waiting for transaction %s to be sealed...", txID)
 	for {
 		result, err := client.GetTransactionResult(ctx, txID)
@@ -172,7 +177,7 @@ func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.
 	}
 }
 
-func main() {
+func Mint(recipientAddress string, nftData NFTData) {
 	ctx := context.Background()
 
 	client, err := grpc.NewClient("access.devnet.nodes.onflow.org:9000")
@@ -199,31 +204,31 @@ func main() {
 	// You might want to use a different account than the minter for the recipient.
 	// For testing, you can use the same account if it also has a collection.
 	// IMPORTANT: Replace with the recipient's address.
-	recipientAddressForNFT := flow.HexToAddress("0x51846a0f69492bba") // Example Recipient Address
-    // If the recipient is a different account and needs collection setup,
-    // you'll need its private key to run SetupAccountForNFTs for it.
-    // For this example, we assume recipient already has a collection or is the same as minter
-    // and minter will have a collection setup first.
+	recipientAddressForNFT := flow.HexToAddress(recipientAddress) // Example Recipient Address
+	// If the recipient is a different account and needs collection setup,
+	// you'll need its private key to run SetupAccountForNFTs for it.
+	// For this example, we assume recipient already has a collection or is the same as minter
+	// and minter will have a collection setup first.
 
 	// --- NFT Data ---
-	nftName := "BOB is the best"
-	nftDescription := "all around awesome guy"
-	nftURL := "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png"
-	nftRole := true
+	// nftName := "BOB is the best"
+	// nftDescription := "all around awesome guy"
+	// nftURL := "https://upload.wikimedia.org/wikipedia/commons/7/70/Example.png"
+	// nftRole := true
 
 	// --- Step 2: Mint the NFT ---
 	log.Printf("Attempting to mint NFT for recipient %s (minted by %s)...", recipientAddressForNFT.String(), minterAddress.String())
-	mintResult, err := MintNFT(
+	mintResult, err := mintNFT(
 		ctx,
 		client,
 		minterAddress,
 		minterPrivateKey,
 		minterKeyIndex,
 		recipientAddressForNFT,
-		nftName,
-		nftDescription,
-		nftURL,
-		nftRole,
+		nftData.NftName,
+		nftData.NftDescription,
+		nftData.NftURL,
+		nftData.NftRole,
 	)
 	if err != nil {
 		log.Fatalf("Failed to mint NFT (Go error, expiry, or context cancellation): %v", err)

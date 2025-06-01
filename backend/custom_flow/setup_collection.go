@@ -1,4 +1,4 @@
-package main
+package custom_flow
 
 import (
 	"context"
@@ -45,7 +45,7 @@ transaction {
 `
 
 // SetupAccountForNFTs prepares an account to receive FooBarV4 NFTs by creating a collection.
-func SetupAccountForNFTs(
+func setupAccountForNFTs(
 	ctx context.Context,
 	client *grpc.Client,
 	signerAddress flow.Address,
@@ -97,11 +97,11 @@ func SetupAccountForNFTs(
 	log.Printf("Transaction sent with ID: %s", tx.ID())
 
 	// 6. Wait for the transaction to be sealed
-	return WaitForTransactionSeal(ctx, client, tx.ID())
+	return waitForTransactionSealSend(ctx, client, tx.ID())
 }
 
 // WaitForTransactionSeal waits for a transaction to be sealed.
-func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.Identifier) (*flow.TransactionResult, error) {
+func waitForTransactionSealSend(ctx context.Context, client *grpc.Client, txID flow.Identifier) (*flow.TransactionResult, error) {
 	log.Printf("Waiting for transaction %s to be sealed...", txID)
 
 	for {
@@ -124,7 +124,6 @@ func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.
 			}
 		}
 
-
 		switch result.Status {
 		case flow.TransactionStatusSealed:
 			log.Printf("Transaction %s sealed.", txID)
@@ -135,7 +134,6 @@ func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.
 			log.Printf("Transaction %s in unknown status: %s", txID, result.Status)
 		}
 
-
 		select {
 		case <-time.After(2 * time.Second): // Check every 2 seconds
 			// Continue polling
@@ -145,7 +143,7 @@ func WaitForTransactionSeal(ctx context.Context, client *grpc.Client, txID flow.
 	}
 }
 
-func main() {
+func Setup(signerPrivateKeyHex string) {
 	ctx := context.Background()
 
 	// 1. Connection to Flow (Devnet in this example)
@@ -161,8 +159,8 @@ func main() {
 
 	// 2. Signer configuration
 	// Replace with your actual private key and address for the account that will have the collection
-	signerPrivateKeyHex := "71faf2f567d303ef4ae83cd1765a3fe125f8e5ae117056f600a6dd8970f81fff" // IMPORTANT: Replace with your private key
-	signerAddress := flow.HexToAddress("0x51846a0f69492bba")                                  // IMPORTANT: Replace with your address
+	// "71faf2f567d303ef4ae83cd1765a3fe125f8e5ae117056f600a6dd8970f81fff" // IMPORTANT: Replace with your private key
+	signerAddress := flow.HexToAddress("0x51846a0f69492bba") // IMPORTANT: Replace with your address
 	keyIndex := 0
 
 	// 3. Decode the private key
@@ -173,7 +171,7 @@ func main() {
 
 	// 4. Execute the transaction to setup the NFT collection
 	log.Printf("Attempting to setup NFT collection for account %s...", signerAddress.String())
-	result, err := SetupAccountForNFTs(
+	result, err := setupAccountForNFTs(
 		ctx,
 		client,
 		signerAddress,
