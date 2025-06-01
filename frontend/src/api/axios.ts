@@ -1,7 +1,7 @@
 import { userRepository } from "@/features/auth/store";
 import Axios from "axios";
 
-const baseURL = process.env.BACK_END_ULR;
+const baseURL = import.meta.env.BACK_END_ULR;
 
 const axiosConfig = {
   baseURL: baseURL,

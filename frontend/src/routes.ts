@@ -1,10 +1,13 @@
 import { createBrowserRouter } from "react-router";
 import ErrorBoundary from "./components/common/errorBoundary";
-import Home from "./pages";
-import LandingLayout from "./pages/_layout";
+import Home from "./pages/landing";
+import LandingLayout from "./pages/landing/_layout";
 import UserSign from "./pages/auth";
 import AuthLayout from "./pages/auth/_layout";
-import Events from "./pages/private";
+import Events from "./pages/events";
+import RootLayout from "./pages/_layout";
+import OneTimePassword from "./pages/auth/oneTimePassword";
+import EventLayout from "./pages/events/_layout";
 
 const routes = createBrowserRouter([
   {
@@ -25,18 +28,26 @@ const routes = createBrowserRouter([
         Component: UserSign,
         path: "/sign",
       },
-     
+      {
+        Component: OneTimePassword,
+        path: "/sign/otp-session",
+      },
     ],
   },
   {
-    // add evant layout
-    ErrorBoundary,
+    Component: RootLayout,
     children: [
       {
-        Component: Events,
-        path: "/events",
+        // add evant layout
+        ErrorBoundary,
+        Component: EventLayout,
+        children: [
+          {
+            Component: Events,
+            path: "/events",
+          },
+        ],
       },
-     
     ],
   },
 ]);

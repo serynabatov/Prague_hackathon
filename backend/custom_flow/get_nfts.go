@@ -2,14 +2,12 @@
 package custom_flow
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"regexp"
 
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
-	"github.com/onflow/flow-go-sdk/access/grpc"
 )
 
 const getNFTs = `
@@ -74,9 +72,6 @@ func parseNFTDisplays(value cadence.Value) ([]NFTDisplay, error) {
 }
 
 func GetNfts() ([]NFTDisplay, error) {
-	ctx := context.Background()
-
-	client, err := grpc.NewClient("access.devnet.nodes.onflow.org:9000")
 	defer client.Close()
 
 	if err != nil {

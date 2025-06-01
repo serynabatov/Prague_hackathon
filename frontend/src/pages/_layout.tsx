@@ -1,35 +1,19 @@
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import { Turtle } from "lucide-react";
-import { Link, Outlet } from "react-router";
+import { type User } from "@/features/auth/store";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 
-function LandingLayout() {
-  return (
-    <>
-      <div className="h-24 flex justify-between items-center p-4 absolute inset-0">
-        <Link to="/">
-          <Turtle size={32} />
-        </Link>
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/sign">Sign in</Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
+function RootLayout() {
+  const navigate = useNavigate();
+  const user = localStorage.getItem("user");
+  useEffect(() => {
+    if (user && (JSON.parse(user) as User).sessionToken) {
+      navigate("/events");
+    } else {
+      navigate("/");
+    }
+  }, [navigate, user]);
 
-      <section className="h-screen pt-24">
-        <Outlet />
-      </section>
-    </>
-  );
+  return <Outlet />;
 }
 
-export default LandingLayout;
+export default RootLayout;

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/button";
 import {
   Form,
   FormField,
@@ -94,7 +94,7 @@ function AuthenticationForm(props: AuthenticationFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit">{submiLabelMap[props.variant]}</Button>
+        <SubmitButton type="submit">{submiLabelMap[props.variant]}</SubmitButton>
       </form>
     </Form>
   );

@@ -1,10 +1,11 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { globalStore } from "../store";
 import { redirect } from "react-router";
+import { atom } from "jotai/vanilla";
 
 type User = {
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   sessionToken: string;
 };
 
@@ -23,9 +24,19 @@ const userRepository = {
   clear: () => globalStore.set(userAtom, null),
   signOut: () => {
     userRepository.clear();
-    redirect("/sign-in");
+    redirect("/sign");
   },
 };
 
-export type { User };
-export { userAtom, userRepository };
+type OneTimePasswordUri = string
+
+const otpAtom = atom<OneTimePasswordUri | null>();
+
+const otpRepository = {
+  get: () => globalStore.get(otpAtom),
+  set: (otpData: OneTimePasswordUri) => globalStore.set(otpAtom, otpData),
+  clear: () => globalStore.set(otpAtom, null),
+};
+
+export type { User, OneTimePasswordUri };
+export { userAtom, userRepository, otpAtom, otpRepository };
