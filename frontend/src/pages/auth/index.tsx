@@ -22,10 +22,7 @@ function UserSign() {
   const navigate = useNavigate();
 
   async function onGoogleLogin() {
-    const [response] = await asyncTodo({
-      otp: "otpauth://totp/Prague:sergio.nabatini@prague.cz?algorithm=SHA1&digits=6&issuer=Prague&period=1800&secret=YBGSQGN2CYVRZQTVDTHDHJHPFV6JFWT4",
-      privateKey: crypto.randomUUID(),
-    } as GoogleSignInResponse);
+    const response = await authRepository.googleSignIn();
 
     if (response.token) {
       setUser({ sessionToken: response.token });
