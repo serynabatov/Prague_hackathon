@@ -28,7 +28,10 @@ const userRepository = {
   },
 };
 
-type OneTimePasswordUri = string
+type OneTimePasswordUri = {
+  otp: string,
+  email: string;
+}
 
 const otpAtom = atom<OneTimePasswordUri | null>();
 

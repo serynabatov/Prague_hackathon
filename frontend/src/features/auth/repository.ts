@@ -1,22 +1,25 @@
 import { axiosExtract } from "@/lib/async";
 import { axiosClient, newQueryFactory } from "@/api";
 
-const { createAction } = newQueryFactory("user");
+const { createAction, createQuery } = newQueryFactory("user");
 type SignInResponse = {
   token: string;
 };
 
 type SignUpResponse = {
   otp: string;
+  email: string;
 };
 
 type GoogleSignInResponse =
   | {
       otp: string;
+      email: string;
       token?: undefined;
     }
   | {
       otp?: undefined;
+      email: string;
       token: string;
     };
 
@@ -31,6 +34,20 @@ const authConstroller = {
   register: (params: Authentication) =>
     axiosClient.post<SignUpResponse>("/api/register", params),
   googleSignIn: () => axiosClient.get<GoogleSignInResponse>("api/google/login"),
+};
+
+type PrivateKeyPayload = { otp: number; email: string };
+type PrivateKeyResponse = {
+  user: string;
+  address: string;
+  timestamp: string;
+};
+
+const keyManagementController = {
+  getPrivateKey: (params: PrivateKeyPayload) =>
+    axiosClient.get<PrivateKeyResponse>("/api/key-management/get-private-key", {
+      params,
+    }),
 };
 
 const authRepository = {
@@ -48,5 +65,11 @@ const authRepository = {
   }),
 };
 
+const keyManagementRepository = {
+  privateKey: createQuery((params: PrivateKeyPayload) =>
+    keyManagementController.getPrivateKey(params)
+  ),
+};
+
 export type { Authentication, GoogleSignInResponse };
-export { authRepository, authConstroller };
+export { authRepository, authConstroller, keyManagementRepository };

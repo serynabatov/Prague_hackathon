@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/input-otp";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
+import { keyManagementRepository } from "@/features/auth/repository";
 import { otpAtom, userAtom } from "@/features/auth/store";
-import { asyncTodo } from "@/lib/async";
 import { seconds } from "@/lib/time";
 import { useAtom } from "jotai/react";
 import { Copy, CopyCheck } from "lucide-react";
@@ -26,7 +26,7 @@ function OneTimePassword() {
   const navigate = useNavigate();
   const handleCopy = () => {
     if (otp) {
-      navigator.clipboard.writeText(otp).then(() => {
+      navigator.clipboard.writeText(otp.otp).then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000); // Reset the copied state after 2 seconds
       });
@@ -43,13 +43,16 @@ function OneTimePassword() {
     }
   }, [navigate, otp, setOtp]);
 
-  async function onSubmitOtp(payload: { email: string; otp: Array<number> }) {
+  async function onSubmitOtp(payload: { email: string; otp: number }) {
     try {
-      if(payload?.otp.length < 6 ){
+      if(String(payload?.otp).split("").length < 6 ){
         throw new Error("INVALID_OTP")
       }
 
-      await asyncTodo(payload);
+      await keyManagementRepository.privateKey.fetch({
+        email: payload.email,
+        otp: payload.otp
+      });
       //response should create jwt
       setUser({...user, sessionToken: crypto.randomUUID()});
       navigate("/events");
@@ -80,7 +83,7 @@ function OneTimePassword() {
           <QRCode
             size={256} // This sets the base size
             style={{ width: "100%", height: "auto" }} // Makes it responsive
-            value={otp}
+            value={otp.otp}
             viewBox={`0 0 256 256`}
             className="mb-6"
           />
@@ -111,7 +114,7 @@ function OneTimePassword() {
             onClickAsync={() =>
               onSubmitOtp({
                 email: "sergio.nabatini@gmail.com",
-                otp: otpInput.split("").map((x) => Number(x)),
+                otp: Number(otpInput),
               })
             }
           >

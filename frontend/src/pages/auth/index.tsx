@@ -31,7 +31,10 @@ function UserSign() {
     }
 
     if (response.otp) {
-      setOtpData(response.otp);
+      setOtpData({
+        email: response.email,
+        otp: response.otp,
+      });
       navigate("/sign/otp-session");
 
       return;
@@ -61,7 +64,10 @@ function UserSign() {
       setTabs("signIn");
 
       if (userResponse.otp) {
-        setOtpData(userResponse.otp);
+        setOtpData({
+          email: userResponse.email,
+          otp: userResponse.otp,
+        });
         navigate("/sign/otp-session");
 
         return;
