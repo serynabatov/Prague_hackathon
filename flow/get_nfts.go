@@ -5,11 +5,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/access/grpc"
 )
+
+type NFTDisplay struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Thumbnail   string `json:"thumbnail"`
+}
 
 const getNFTsScript = `
 import FooBarV4 from 0x4ac0ee1c903bf362
@@ -41,6 +48,31 @@ access(all) fun main(address: Address): [MetadataViews.Display] {
 }
 `
 
+func parseNFTDisplays(value cadence.Value) ([]NFTDisplay, error) {
+	// Получаем строковое представление
+	str := value.String()
+	fmt.Println("Parsing string:", str)
+
+	// Regex для извлечения данных из строкового представления
+	displayRegex := regexp.MustCompile(`MetadataViews\.Display\(name: "([^"]*)", description: "([^"]*)", thumbnail: [^(]*\(url: "([^"]*)"\)\)`)
+	matches := displayRegex.FindAllStringSubmatch(str, -1)
+
+	var nfts []NFTDisplay
+
+	for _, match := range matches {
+		if len(match) >= 4 {
+			nft := NFTDisplay{
+				Name:        match[1],
+				Description: match[2],
+				Thumbnail:   match[3],
+			}
+			nfts = append(nfts, nft)
+		}
+	}
+
+	return nfts, nil
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -59,7 +91,19 @@ func main() {
 		log.Fatalf("Failed to execute script: %v", err)
 	}
 
-	// Просто выводим полученные данные как есть
-	fmt.Println("Raw NFT data:")
-	fmt.Println(value.String())
+	// Парсим данные в обычные Go структуры
+	nfts, err := parseNFTDisplays(value)
+	if err != nil {
+		log.Fatalf("Failed to parse NFT data: %v", err)
+	}
+
+	// Теперь у нас есть обычный слайс Go структур
+	fmt.Printf("Found %d NFTs:\n", len(nfts))
+	for i, nft := range nfts {
+		fmt.Printf("NFT %d:\n", i+1)
+		fmt.Printf("  Name: %s\n", nft.Name)
+		fmt.Printf("  Description: %s\n", nft.Description)
+		fmt.Printf("  Thumbnail: %s\n", nft.Thumbnail)
+		fmt.Println()
+	}
 }
