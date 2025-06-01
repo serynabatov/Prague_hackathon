@@ -4,9 +4,10 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import AuthenticationForm from "@/features/auth/form";
-import type {
-  Authentication,
-  GoogleSignInResponse,
+import {
+  authRepository,
+  type Authentication,
+  type GoogleSignInResponse,
 } from "@/features/auth/repository";
 import { otpAtom, userAtom } from "@/features/auth/store";
 import { asyncTodo } from "@/lib/async";
@@ -43,12 +44,11 @@ function UserSign() {
   }
 
   async function onSignIn(data: Authentication) {
-    const [userResponse] = await asyncTodo(data);
+    const userResponse = await authRepository.login(data);
 
     setUser({
-      email: userResponse.email,
       name: "user1",
-      sessionToken: crypto.randomUUID(),
+      sessionToken: userResponse.token,
     });
     navigate("/events");
   }

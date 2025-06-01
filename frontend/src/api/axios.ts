@@ -1,7 +1,7 @@
 import { userRepository } from "@/features/auth/store";
 import Axios from "axios";
 
-const baseURL = import.meta.env.BACK_END_ULR;
+const baseURL = import.meta.env.VITE_BACK_END_URL;
 
 const axiosConfig = {
   baseURL: baseURL,
@@ -12,6 +12,7 @@ const axiosConfig = {
   timeout: 30000,
 };
 
+console.log(axiosConfig)
 const axiosClient = Axios.create(axiosConfig);
 
 axiosClient.interceptors.request.use(
