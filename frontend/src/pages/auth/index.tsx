@@ -7,17 +7,17 @@ import AuthenticationForm from "@/features/auth/form";
 import {
   authRepository,
   type Authentication,
-  type GoogleSignInResponse,
 } from "@/features/auth/repository";
 import { otpAtom, userAtom } from "@/features/auth/store";
-import { asyncTodo } from "@/lib/async";
 import { useAtom } from "jotai/react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 function UserSign() {
   const [_user, setUser] = useAtom(userAtom);
   const [_otp, setOtpData] = useAtom(otpAtom);
+  const [tabs, setTabs] = useState<string>("signIn");
 
   const navigate = useNavigate();
 
@@ -44,12 +44,12 @@ function UserSign() {
     try {
       const userResponse = await authRepository.login(data);
 
-    setUser({
-      name: "user1",
-      sessionToken: userResponse.token,
-    });
-    navigate("/events");
-    } catch(e) {
+      setUser({
+        name: "user1",
+        sessionToken: userResponse.token,
+      });
+      navigate("/events");
+    } catch (e) {
       toast.error("Something went wrong, re-try to in few minutes");
     }
   }
@@ -58,13 +58,14 @@ function UserSign() {
     try {
       const userResponse = await authRepository.register(data);
 
-    setUser({
-      name: "user1",
-      sessionToken: userResponse.token,
-    });
-    navigate("/events");
-    toast.success("successfully sign up");
-    } catch(e) {
+      setUser({
+        name: "user1",
+        sessionToken: userResponse.token,
+      });
+
+      toast.success("successfully sign up");
+      setTabs("signIn");
+    } catch (e) {
       toast.error("Something went wrong, re-try to in few minutes");
     }
   }
@@ -72,7 +73,7 @@ function UserSign() {
   return (
     <div className="m-auto w-full px-4 max-w-96">
       <Text type="h2">Welcome</Text>
-      <Tabs defaultValue="signIn">
+      <Tabs defaultValue="signIn" onValueChange={setTabs} value={tabs}>
         <TabsList className="w-full mb-2">
           <TabsTrigger value="signIn">Sing in</TabsTrigger>
           <TabsTrigger value="signUp">Sing up</TabsTrigger>
