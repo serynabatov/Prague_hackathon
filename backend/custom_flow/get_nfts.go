@@ -1,5 +1,5 @@
 // 0x4ac0ee1c903bf362
-package main
+package custom_flow
 
 import (
 	"context"
@@ -12,13 +12,7 @@ import (
 	"github.com/onflow/flow-go-sdk/access/grpc"
 )
 
-type NFTDisplay struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Thumbnail   string `json:"thumbnail"`
-}
-
-const getNFTsScript = `
+const getNFTs = `
 import FooBarV4 from 0x4ac0ee1c903bf362
 import NonFungibleToken from 0x631e88ae7f1d7c20
 import MetadataViews from 0x631e88ae7f1d7c20
@@ -48,6 +42,12 @@ access(all) fun main(address: Address): [MetadataViews.Display] {
 }
 `
 
+type NFTDisplay struct {
+	Name        string
+	Description string
+	Thumbnail   string
+}
+
 func parseNFTDisplays(value cadence.Value) ([]NFTDisplay, error) {
 	// Получаем строковое представление
 	str := value.String()
@@ -73,37 +73,32 @@ func parseNFTDisplays(value cadence.Value) ([]NFTDisplay, error) {
 	return nfts, nil
 }
 
-func main() {
+func GetNfts() ([]NFTDisplay, error) {
 	ctx := context.Background()
 
 	client, err := grpc.NewClient("access.devnet.nodes.onflow.org:9000")
+	defer client.Close()
+
 	if err != nil {
 		log.Fatalf("Failed to connect to Flow: %v", err)
+		return nil, err
 	}
-	defer client.Close()
 
 	userAddress := flow.HexToAddress("0x4ac0ee1c903bf362") // Replace with target address
 
 	addressArg := cadence.NewAddress(userAddress)
 
-	value, err := client.ExecuteScriptAtLatestBlock(ctx, []byte(getNFTsScript), []cadence.Value{addressArg})
+	value, err := client.ExecuteScriptAtLatestBlock(ctx, []byte(getNFTs), []cadence.Value{addressArg})
 	if err != nil {
 		log.Fatalf("Failed to execute script: %v", err)
+		return nil, err
 	}
 
-	// Парсим данные в обычные Go структуры
 	nfts, err := parseNFTDisplays(value)
 	if err != nil {
 		log.Fatalf("Failed to parse NFT data: %v", err)
+		return nil, err
 	}
 
-	// Теперь у нас есть обычный слайс Go структур
-	fmt.Printf("Found %d NFTs:\n", len(nfts))
-	for i, nft := range nfts {
-		fmt.Printf("NFT %d:\n", i+1)
-		fmt.Printf("  Name: %s\n", nft.Name)
-		fmt.Printf("  Description: %s\n", nft.Description)
-		fmt.Printf("  Thumbnail: %s\n", nft.Thumbnail)
-		fmt.Println()
-	}
+	return nfts, nil
 }

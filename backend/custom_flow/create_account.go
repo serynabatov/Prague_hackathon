@@ -1,4 +1,4 @@
-package main
+package custom_flow
 
 import (
 	"context"
@@ -93,27 +93,27 @@ func createFlowAccount(proposerAddress, proposerPrivateKeyHex string) (FlowAccou
 	}
 
 	// Wait for transaction to be sealed (with timeout)
-    timeout := time.After(10 * time.Second)
-    ticker := time.NewTicker(1 * time.Second)
-    defer ticker.Stop()
+	timeout := time.After(10 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
 
-    var result *flow.TransactionResult
-    for {
-        select {
-        case <-timeout:
-            return FlowAccount{}, fmt.Errorf("transaction timed out")
-        case <-ticker.C:
-            result, err = flowClient.GetTransactionResult(ctx, tx.ID())
-            if err != nil {
-                return FlowAccount{}, fmt.Errorf("failed to get transaction result: %v", err)
-            }
-            if result.Status == flow.TransactionStatusSealed {
-                goto TransactionSealed
-            } else if result.Error != nil { // Проверяем наличие ошибки
-                return FlowAccount{}, fmt.Errorf("transaction failed: %s", result.Error.Error())
-            }
-        }
-    }
+	var result *flow.TransactionResult
+	for {
+		select {
+		case <-timeout:
+			return FlowAccount{}, fmt.Errorf("transaction timed out")
+		case <-ticker.C:
+			result, err = flowClient.GetTransactionResult(ctx, tx.ID())
+			if err != nil {
+				return FlowAccount{}, fmt.Errorf("failed to get transaction result: %v", err)
+			}
+			if result.Status == flow.TransactionStatusSealed {
+				goto TransactionSealed
+			} else if result.Error != nil { // Проверяем наличие ошибки
+				return FlowAccount{}, fmt.Errorf("transaction failed: %s", result.Error.Error())
+			}
+		}
+	}
 
 TransactionSealed:
 	// Extract new account address
@@ -136,18 +136,15 @@ TransactionSealed:
 	}, nil
 }
 
-func main() {
+func CreateAccount() (FlowAccount, error) {
 	proposerAddress := "447fc5c9baffdfd1"
 	proposerPrivateKey := "45bfe485142dbbe1adc62b8dfc46f3efcaac92508466fb9b042ce75675ade71e"
 
 	account, err := createFlowAccount(proposerAddress, proposerPrivateKey)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		return FlowAccount{}, err
 	}
 
-	fmt.Printf("✅ New Flow Account Created:\n")
-	fmt.Printf("Address: 0x%s\n", account.Address)
-	fmt.Printf("Private Key: %s\n", account.PrivateKey)
-	fmt.Printf("Public Key: %s\n", account.PublicKey)
+	return account, nil
 }

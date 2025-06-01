@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"backend/cloud"
 	"backend/models"
 	"backend/utils/password"
 	"backend/utils/token"
 	"context"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -61,6 +64,7 @@ func Register(c *gin.Context) {
 
 	u.Email = input.Email
 	u.Password = input.Password
+	u.Authenicated = false
 
 	_, err := u.SaveUser()
 
@@ -69,7 +73,41 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "registration success"})
+	key, err := cloud.SetUpTotp(u.ID, u.Email)
+
+	if err != nil {
+		log.Fatal("[Error] generating the totp")
+		return
+	}
+
+	fmt.Println("Scan this QR/URL in Google Authenticator or Authy:", key)
+	fmt.Println("Then use a URL like: http://localhost:8080/get-private-key?user=user123&code=XXXXXX")
+
+	c.JSON(http.StatusOK, gin.H{"otp": key})
+}
+
+func GenerateOtp(c *gin.Context) {
+	email := c.Query("email")
+
+	u, err := models.GetByEmail(email)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	key, err := cloud.SetUpTotp(u.ID, u.Email)
+
+	if err != nil {
+		log.Fatal("[Error] generating the totp")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate a secure password"})
+		return
+	}
+
+	fmt.Println("Scan this QR/URL in Google Authenticator or Authy:", key)
+	fmt.Println("Then use a URL like: http://localhost:8080/get-private-key?user=user123&code=XXXXXX")
+
+	c.JSON(http.StatusOK, gin.H{"otp": key})
 }
 
 func Login(c *gin.Context) {
@@ -159,7 +197,21 @@ func GoogleCallback(c *gin.Context) {
 		}
 		user.Email = userInfo.Email
 		user.Password = string(password)
+		user.Authenicated = false
 		user.SaveUser()
+		key, err := cloud.SetUpTotp(user.ID, user.Email)
+
+		if err != nil {
+			log.Fatal("[Error] generating the totp")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to decode user info"})
+			return
+		}
+
+		fmt.Println("Scan this QR/URL in Google Authenticator or Authy:", key)
+		fmt.Println("Then use a URL like: http://localhost:8080/get-private-key?user=user123&code=XXXXXX")
+
+		c.JSON(http.StatusOK, gin.H{"otp": key})
+		return
 	}
 
 	token, err := token.GenerateToken(user.ID)

@@ -1,4 +1,4 @@
-package main
+package custom_flow
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func SendTokens(
 		return nil, fmt.Errorf("failed to get latest block: %w", err)
 	}
 
-    // Получаем текущий sequence number
+	// Получаем текущий sequence number
 	sequenceNumber := signerAccount.Keys[keyIndex].SequenceNumber
 
 	// 2. Получаем последний блок для reference block
