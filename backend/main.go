@@ -4,6 +4,7 @@ import (
 	"backend/controllers"
 	"backend/middlewares"
 	"backend/models"
+	"time"
 
 	"github.com/gin-contrib/cors"
 
@@ -14,8 +15,14 @@ func main() {
 	models.ConnectDataBase()
 
 	r := gin.Default()
-	// This allows any origin, any method, any header.
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	public := r.Group("/api")
 
